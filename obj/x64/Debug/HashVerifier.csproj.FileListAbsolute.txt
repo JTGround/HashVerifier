@@ -1,0 +1,9 @@
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\bin\x64\Debug\HashVerifier.exe
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\bin\x64\Debug\HashVerifier.pdb
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\obj\x64\Debug\HashVerifier.Main.resources
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\obj\x64\Debug\HashVerifier.Properties.Resources.resources
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\obj\x64\Debug\HashVerifier.csproj.GenerateResource.Cache
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\obj\x64\Debug\HashVerifier.exe
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\obj\x64\Debug\HashVerifier.pdb
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\obj\x64\Debug\HashVerifier.csprojResolveAssemblyReference.cache
+E:\Workspace\VisualStudio\HashVerifier\HashVerifier\bin\x64\Debug\HashVerifier.exe.config
