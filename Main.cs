@@ -19,9 +19,14 @@ namespace HashVerifier
     public partial class Main : Form
     {
 
+        private HashEngine _engine = null;
+
         public Main()
         {
             InitializeComponent();
+
+            //initialize hash engine
+            _engine = new HashEngine();
         }
 
         private void buttonClose_Click(object sender, EventArgs e)
@@ -43,9 +48,13 @@ namespace HashVerifier
             {
                 buttonHash.Enabled = false;
 
-                HashFileMD5();
-                HashFileSHA1();
-                HashFileSHA256();
+                var md5Hash = _engine.HashFileMD5(filePath);
+                var sha1Hash = _engine.HashFileSHA1(filePath);
+                var sha256Hash = _engine.HashFileSHA256(filePath);
+
+                textMD5.Text = _engine.ConvertToHexString(md5Hash);
+                textSHA1.Text = _engine.ConvertToHexString(sha1Hash);
+                textSHA256.Text = _engine.ConvertToHexString(sha256Hash);
 
                 buttonHash.Enabled = true;
             }
@@ -64,77 +73,7 @@ namespace HashVerifier
             
         }
         
-        private void HashFileMD5()
-        {
-            var md5Millis = System.Environment.TickCount;
-            String filePath;
-            filePath = textFilePath.Text;
-
-            byte[] md5HashBytes;
-
-            MD5CryptoServiceProvider hasher = new MD5CryptoServiceProvider();
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                md5HashBytes = hasher.ComputeHash(stream);
-            }
-
-            String md5HashString = ConvertToHexString(md5HashBytes);
-            textMD5.Text = md5HashString;
-
-            Debug.WriteLine("md5 millis: " + (System.Environment.TickCount - md5Millis));
-
-        }
-                
-        private void HashFileSHA1()
-        {
-            var sha1Millis = System.Environment.TickCount;
-            String filePath;
-            filePath = textFilePath.Text;
-            byte[] sha1HashBytes;
-
-            SHA1CryptoServiceProvider hasher = new SHA1CryptoServiceProvider();
-
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                sha1HashBytes = hasher.ComputeHash(stream);
-            }
-
-            String sha1HashString = ConvertToHexString(sha1HashBytes);
-            textSHA1.Text = sha1HashString;
-
-            Debug.WriteLine("SHA1 millis: " + (System.Environment.TickCount - sha1Millis));
-        }
-                
-        private void HashFileSHA256()
-        {
-            var sha256Millis = System.Environment.TickCount;
-            String filePath;
-            filePath = textFilePath.Text;
-            byte[] sha256HashBytes;
-
-            SHA256CryptoServiceProvider hasher = new SHA256CryptoServiceProvider();
-
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                sha256HashBytes = hasher.ComputeHash(stream);
-            }
-
-            String sha256HashString = ConvertToHexString(sha256HashBytes);
-            textSHA256.Text = sha256HashString;
-
-            Debug.WriteLine("SHA256 millis: " + (System.Environment.TickCount - sha256Millis));
-            
-        }
-
-        private String ConvertToHexString(byte[] hash)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hash.Length; i++)
-            {
-                sb.Append(hash[i].ToString("X2"));
-            }
-            return sb.ToString();
-        }
+        
 
         private void textFilePath_DragDrop(object sender, DragEventArgs e)
         {
