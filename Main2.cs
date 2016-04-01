@@ -14,7 +14,9 @@ namespace HashVerifier
     public partial class Main2 : Form
     {
         private HashEngine _engine = null;
-        private byte[] _currentHash = null;
+        private byte[] _md5Hash = null;
+        private byte[] _sha1Hash = null;
+        private byte[] _sha256Hash = null;
 
         public Main2()
         {
@@ -26,7 +28,7 @@ namespace HashVerifier
 
         private void Main2_Load(object sender, EventArgs e)
         {
-            comboHashType.SelectedIndex = 0;
+            groupFileSelect.AllowDrop = true;
         }
 
         private void buttonFilePath_Click(object sender, EventArgs e)
@@ -37,44 +39,29 @@ namespace HashVerifier
             if (result == DialogResult.OK)
             {
                 String fileName = openFile.FileName;
-                textFilePath.Text = fileName;
+                labelFileName.Text = fileName;
             }
         }
 
         private void buttonHash_Click(object sender, EventArgs e)
         {
-            String filePath = textFilePath.Text;
+            String filePath = labelFileName.Text;
             if (filePath == String.Empty)
             {
                 MessageBox.Show("The file path cannot be empty.", "File not found");
-                textFilePath.Focus();
+                labelFileName.Focus();
                 return;
             }
 
             try
             {
                 buttonHash.Enabled = false;
-
-                string hashType = comboHashType.Text;
-                if (string.IsNullOrEmpty(hashType)) return;
-
-                switch (hashType)
-                {
-                    case "MD5":
-                        _currentHash = _engine.HashFileMD5(filePath);
-                        PrintHash();
-                        break;
-                    case "SHA-1":
-                        _currentHash = _engine.HashFileSHA1(filePath);
-                        PrintHash();
-                        break;
-                    case "SHA-256":
-                        _currentHash = _engine.HashFileSHA256(filePath);
-                        PrintHash();
-                        break;
-                    default:
-                        break;
-                }
+                _md5Hash = _engine.HashFileMD5(filePath);
+                PrintHash(textMD5, HashType.MD5, _md5Hash);
+                _sha1Hash = _engine.HashFileSHA1(filePath);
+                PrintHash(textSHA1, HashType.SHA1, _sha1Hash);
+                _sha256Hash = _engine.HashFileSHA256(filePath);
+                PrintHash(textSHA256, HashType.SHA256, _sha256Hash);
 
                 buttonHash.Enabled = true;
             }
@@ -86,18 +73,58 @@ namespace HashVerifier
             {
                 MessageBox.Show("There was a problem hashing the file:\n\n" + ex.Message);
             }
-            finally
-            {
-                textFilePath.Focus();
-            }              
         }
-
-        private void buttonClose_Click(object sender, EventArgs e)
+        
+        private void ClearHashes()
         {
-            this.Close();
+            //clear existing hashes
+            _md5Hash = null;
+            _sha1Hash = null;
+            _sha256Hash = null;
+            textMD5.Text = "";
+            textSHA1.Text = "";
+            textSHA256.Text = "";
         }
 
-        private void textFilePath_DragDrop(object sender, DragEventArgs e)
+        private void PrintHash(TextBox textBox, HashType hashType, byte[] hash)
+        {
+            bool upper = checkUseUpper.Checked;
+            bool spaces = checkShowSpaces.Checked;
+
+            var hashString = _engine.ConvertToHexString(hash);
+
+            if (upper) hashString = hashString.ToUpper();
+            else hashString = hashString.ToLower();
+
+            textBox.Text = hashString;
+        }
+
+        private void checkUseUpper_CheckedChanged(object sender, EventArgs e)
+        {
+            bool ch = checkUseUpper.Checked;
+
+            if (_md5Hash != null) PrintHash(textMD5, HashType.MD5, _md5Hash);
+            if (_sha1Hash != null) PrintHash(textSHA1, HashType.SHA1, _sha1Hash);
+            if (_sha256Hash != null) PrintHash(textSHA256, HashType.SHA256, _sha256Hash);
+        }
+
+        private void checkShowSpaces_CheckedChanged(object sender, EventArgs e)
+        {
+            bool ch = checkShowSpaces.Checked;
+
+            if (_md5Hash != null) PrintHash(textMD5, HashType.MD5, _md5Hash);
+            if (_sha1Hash != null) PrintHash(textSHA1, HashType.SHA1, _sha1Hash);
+            if (_sha256Hash != null) PrintHash(textSHA256, HashType.SHA256, _sha256Hash);
+        }
+
+        enum HashType
+        {
+            MD5,
+            SHA1,
+            SHA256
+        }
+
+        private void groupFileSelect_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -112,62 +139,16 @@ namespace HashVerifier
                 }
                 String filePath = fileList[0];
 
-                textFilePath.Text = filePath;
+                labelFileName.Text = filePath;
             }
         }
 
-        private void textFilePath_DragEnter(object sender, DragEventArgs e)
+        private void groupFileSelect_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
                 e.Effect = DragDropEffects.Copy;
             else
                 e.Effect = DragDropEffects.None;
-        }
-
-        private void ClearHashes()
-        {
-            //clear existing hashes
-            _currentHash = null;
-            textHash.Text = "";
-        }
-
-        private void PrintHash()
-        {
-            bool upper = checkUseUpper.Checked;
-            bool spaces = checkShowSpaces.Checked;
-            string hashString;
-
-            if (_currentHash == null) throw new Exception("Unable to display a null hash");
-
-            hashString = _engine.ConvertToHexString(_currentHash);
-
-            if (upper) hashString = hashString.ToUpper();
-            else hashString = hashString.ToLower();
-
-            textHash.Text = hashString;
-        }
-
-        private void checkUseUpper_CheckedChanged(object sender, EventArgs e)
-        {
-            bool ch = checkUseUpper.Checked;
-
-            if(_currentHash == null) return;  //exit silently
-
-            PrintHash();
-        }
-
-        private void checkShowSpaces_CheckedChanged(object sender, EventArgs e)
-        {
-            bool ch = checkShowSpaces.Checked;
-
-            if (_currentHash == null) return; //exit silently
-
-            PrintHash();
-        }
-
-        private void textFilePath_TextChanged(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(textFilePath.Text)) ClearHashes();
         }
     }
 }
