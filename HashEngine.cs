@@ -22,9 +22,8 @@ namespace HashVerifier
             var md5Millis = System.Environment.TickCount;
 
             byte[] md5HashBytes;
-
             MD5CryptoServiceProvider hasher = new MD5CryptoServiceProvider();
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 md5HashBytes = hasher.ComputeHash(stream);
             }
@@ -41,7 +40,7 @@ namespace HashVerifier
 
             SHA1CryptoServiceProvider hasher = new SHA1CryptoServiceProvider();
 
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 sha1HashBytes = hasher.ComputeHash(stream);
             }
@@ -58,7 +57,7 @@ namespace HashVerifier
 
             SHA256CryptoServiceProvider hasher = new SHA256CryptoServiceProvider();
 
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 sha256HashBytes = hasher.ComputeHash(stream);
             }

@@ -49,6 +49,9 @@
             this.button1 = new System.Windows.Forms.Button();
             this.buttonSHA1Copy = new System.Windows.Forms.Button();
             this.buttonMD5Copy = new System.Windows.Forms.Button();
+            this.backgroundMD5 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundSHA1 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundSHA256 = new System.ComponentModel.BackgroundWorker();
             label1 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label6 = new System.Windows.Forms.Label();
@@ -253,6 +256,18 @@
             this.buttonMD5Copy.TabIndex = 29;
             this.buttonMD5Copy.UseVisualStyleBackColor = true;
             // 
+            // backgroundMD5
+            // 
+            this.backgroundMD5.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundHash_RunWorkerCompleted);
+            // 
+            // backgroundSHA1
+            // 
+            this.backgroundSHA1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundSHA1_RunWorkerCompleted);
+            // 
+            // backgroundSHA256
+            // 
+            this.backgroundSHA256.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundSHA256_RunWorkerCompleted);
+            // 
             // Main2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -299,5 +314,8 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button buttonSHA1Copy;
         private System.Windows.Forms.Button buttonMD5Copy;
+        private System.ComponentModel.BackgroundWorker backgroundMD5;
+        private System.ComponentModel.BackgroundWorker backgroundSHA1;
+        private System.ComponentModel.BackgroundWorker backgroundSHA256;
     }
 }

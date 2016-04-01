@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -38,15 +39,20 @@ namespace HashVerifier
 
             if (result == DialogResult.OK)
             {
-                String fileName = openFile.FileName;
-                labelFileName.Text = fileName;
+                var filePath = openFile.FileName;
+                var fileInfo = new FileInfo(filePath);
+
+
+                if (filePath != labelFileName.Text) ClearHashes();
+                labelFileName.Text = filePath;
+                labelFileSize.Text = GetSizeString(fileInfo.Length);
             }
         }
 
         private void buttonHash_Click(object sender, EventArgs e)
         {
             String filePath = labelFileName.Text;
-            if (filePath == String.Empty)
+            if (string.IsNullOrWhiteSpace(filePath))
             {
                 MessageBox.Show("The file path cannot be empty.", "File not found");
                 labelFileName.Focus();
@@ -56,12 +62,9 @@ namespace HashVerifier
             try
             {
                 buttonHash.Enabled = false;
-                _md5Hash = _engine.HashFileMD5(filePath);
-                PrintHash(textMD5, HashType.MD5, _md5Hash);
-                _sha1Hash = _engine.HashFileSHA1(filePath);
-                PrintHash(textSHA1, HashType.SHA1, _sha1Hash);
-                _sha256Hash = _engine.HashFileSHA256(filePath);
-                PrintHash(textSHA256, HashType.SHA256, _sha256Hash);
+                backgroundMD5.RunWorkerAsync();
+                backgroundSHA1.RunWorkerAsync();
+                backgroundSHA256.RunWorkerAsync();
 
                 buttonHash.Enabled = true;
             }
@@ -74,7 +77,34 @@ namespace HashVerifier
                 MessageBox.Show("There was a problem hashing the file:\n\n" + ex.Message);
             }
         }
-        
+
+        private void HashSHA256()
+        {
+            var filePath = labelFileName.Text;
+            _sha256Hash = _engine.HashFileSHA256(filePath);
+            var hashString = _engine.ConvertToHexString(_sha256Hash);
+            hashString = hashString.ToUpper();
+            textSHA256.Text = hashString;
+        }
+
+        private void HashMD5()
+        {
+            var filePath = labelFileName.Text;
+            _md5Hash = _engine.HashFileMD5(filePath);
+            var hashString = _engine.ConvertToHexString(_md5Hash);
+            hashString = hashString.ToUpper();
+            textMD5.Text = hashString;
+        }
+
+        private void HashSHA1()
+        {
+            var filePath = labelFileName.Text;
+            _sha1Hash = _engine.HashFileSHA1(filePath);
+            var hashString = _engine.ConvertToHexString(_sha1Hash);
+            hashString = hashString.ToUpper();
+            textSHA1.Text = hashString;
+        }
+
         private void ClearHashes()
         {
             //clear existing hashes
@@ -99,6 +129,13 @@ namespace HashVerifier
             textBox.Text = hashString;
         }
 
+        enum HashType
+        {
+            MD5,
+            SHA1,
+            SHA256
+        }
+
         private void checkUseUpper_CheckedChanged(object sender, EventArgs e)
         {
             bool ch = checkUseUpper.Checked;
@@ -117,13 +154,6 @@ namespace HashVerifier
             if (_sha256Hash != null) PrintHash(textSHA256, HashType.SHA256, _sha256Hash);
         }
 
-        enum HashType
-        {
-            MD5,
-            SHA1,
-            SHA256
-        }
-
         private void groupFileSelect_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -139,6 +169,7 @@ namespace HashVerifier
                 }
                 String filePath = fileList[0];
 
+                if(filePath != labelFileName.Text) ClearHashes();
                 labelFileName.Text = filePath;
             }
         }
@@ -149,6 +180,30 @@ namespace HashVerifier
                 e.Effect = DragDropEffects.Copy;
             else
                 e.Effect = DragDropEffects.None;
+        }
+        
+        private void backgroundHash_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            HashMD5();
+        }
+
+        private void backgroundSHA1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            HashSHA1();
+        }
+
+        private void backgroundSHA256_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            HashSHA256();
+        }
+
+        private string GetSizeString(long size)
+        {
+            if (size < 1000) return size + "b";
+            else if (size < 1000000) return (size/1000).ToString() + "KB";
+            else if (size < 1000000000) return (size/1000000).ToString() + "MB";
+            else if (size < 1000000000000) return (size/1000000000).ToString() + "GB";
+            else return "large";
         }
     }
 }
